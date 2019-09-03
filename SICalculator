@@ -1,0 +1,208 @@
+import 'package:flutter/material.dart';
+
+void main() {
+  runApp(MaterialApp(
+    title: "Simple Interest Calculator",
+    debugShowCheckedModeBanner: false,
+    debugShowMaterialGrid: false,
+    home: SIForm(),
+    theme: ThemeData(
+      brightness: Brightness.dark,
+      primaryColor: Colors.deepPurple,
+      accentColor: Colors.amber,
+    ),
+  ));
+}
+
+class SIForm extends StatefulWidget {
+  @override
+  _SIFormState createState() => _SIFormState();
+}
+
+class _SIFormState extends State<SIForm> {
+  var _currencies = ["dollar", 'pound', 'rupees', 'euro'];
+  var _currentItemSelected = 'rupees';
+
+  TextEditingController principalControlled = TextEditingController();
+  TextEditingController roiControlled = TextEditingController();
+  TextEditingController termControlled = TextEditingController();
+  String temp = 'SI calculated : 0 rupees';
+
+  @override
+  Widget build(BuildContext context) {
+    TextStyle textStyle = Theme.of(context).textTheme.title;
+
+    return Scaffold(
+      resizeToAvoidBottomPadding: false,
+      appBar: AppBar(
+        title: Center(
+          child: Text(
+            "Simple Interest Calculator",
+            style: TextStyle(
+                fontFamily: 'Raleway',
+                fontWeight: FontWeight.w700,
+                color: Colors.white),
+          ),
+        ),
+//        backgroundColor: Colors.blueAccent,
+      ),
+      body: Container(
+        margin: EdgeInsets.all(10.0),
+        child: Column(
+          children: <Widget>[
+            Center(child: getImage()),
+            Padding(
+                padding: EdgeInsets.only(top: 3.0, bottom: 3.0),
+                child: TextField(
+                  style: textStyle,
+                  keyboardType: TextInputType.numberWithOptions(signed: false),
+                  controller: principalControlled,
+                  decoration: InputDecoration(
+                    labelText: "Principal",
+                    hintText: "Enter principal Ex- 12000",
+                    labelStyle: textStyle,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0)),
+                  ),
+                )),
+            Padding(
+                padding: EdgeInsets.only(top: 3.0, bottom: 3.0),
+                child: TextField(
+                  style: textStyle,
+                  controller: roiControlled,
+                  decoration: InputDecoration(
+                    labelText: "Rate",
+                    hintText: "In percent",
+                    labelStyle: textStyle,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(5.0)),
+                  ),
+                )),
+            Padding(
+                padding: EdgeInsets.only(top: 3.0, bottom: 3.0),
+                child: Row(
+                  children: <Widget>[
+                    Expanded(
+                        child: TextField(
+                      style: textStyle,
+                      controller: termControlled,
+                      decoration: InputDecoration(
+                        labelText: "Term",
+                        hintText: "Time in years",
+                        labelStyle: textStyle,
+                        border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0)),
+                      ),
+                    )),
+                    Container(
+                      width: 25.0,
+                    ),
+                    Expanded(
+                        child: DropdownButton<String>(
+                      items: _currencies.map((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
+                      value: _currentItemSelected,
+                      onChanged: (String newValueSelected) {
+                        _onDropDownItemSelected(newValueSelected);
+                      },
+                    )),
+                  ],
+                )),
+            Padding(
+              padding: EdgeInsets.only(bottom: 3.0, top: 3.0),
+              child: Row(
+                children: <Widget>[
+                  Expanded(
+                    child: RaisedButton(
+                      color: Colors.deepPurple,
+                      child: Text(
+                        "Calculate",
+                        textScaleFactor: 1.25,
+                        style: TextStyle(
+                            fontFamily: 'Raleway',
+                            fontWeight: FontWeight.w700,
+                            color: Colors.lightBlue),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          this.temp = _calculateTotalReturns();
+                        });
+                      },
+                    ),
+                  ),
+                  Container(
+                    width: 25.0,
+                  ),
+                  Expanded(
+                    child: RaisedButton(
+//                      color: Colors.deepPurple,
+                        color: Theme.of(context).primaryColorDark,
+                        textColor: Theme.of(context).primaryColorLight,
+                        child: Text(
+                          "Reset",
+                          textScaleFactor: 1.5,
+                          style: TextStyle(
+                            fontFamily: 'Raleway',
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            _reset();
+                          });
+                        }),
+                  )
+                ],
+              ),
+            ),
+            Padding(
+              padding: EdgeInsets.all(5.0),
+              child: Text(temp),
+            )
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget getImage() {
+    AssetImage assetimage = AssetImage("images/money.png");
+    Image image = Image(
+      image: assetimage,
+      width: 100.0,
+      height: 125.0,
+    );
+    return Container(
+      child: image,
+      margin: EdgeInsets.all(5.0),
+    );
+  }
+
+  void _onDropDownItemSelected(String newValueSelected) {
+    setState(() {
+      this._currentItemSelected = newValueSelected;
+    });
+  }
+
+  String _calculateTotalReturns() {
+    double principal = double.parse(principalControlled.text);
+    double roi = double.parse(roiControlled.text);
+    double term = double.parse(termControlled.text);
+
+    double total = principal + (principal * roi * term) / 100;
+    String result = 'SI calculated : $total $_currentItemSelected';
+    return result;
+  }
+
+  void _reset() {
+    principalControlled.text = '';
+    roiControlled.text = '';
+    termControlled.text = '';
+    temp = 'SI calculated : 0 rupees';
+    _currentItemSelected = 'rupees';
+  }
+}
